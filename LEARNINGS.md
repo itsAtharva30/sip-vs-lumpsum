@@ -1,0 +1,1 @@
+Stage 0: A virtual environment keeps each project's libraries separate, and requirements.txt plus .gitignore let anyone rebuild it without committing .venv.
