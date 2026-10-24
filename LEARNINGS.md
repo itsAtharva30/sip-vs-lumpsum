@@ -22,3 +22,13 @@ A virtual environment keeps each project's libraries separate, and requirements.
 **Habits to keep**
 - Check any result backwards: grow the CAGR to see if it gives back the final value, and check that more units at the same final price means a higher value.
 - Keep full decimals while calculating and round only at the end.
+
+## Stage 2: Data
+
+- **Source:** Nifty 50 index (`^NSEI`) from yfinance, 4,128 daily rows from 2010-01-04 to 2026-10-23. Raw `Close` is saved in `data/raw/` so results can be reproduced.
+- **Price choice:** use `Close`, not High or Low. Those are single moments in the day that nobody can reliably buy at.
+- **Check data before using it:** sorted, no duplicate dates, no prices at or below zero. Gaps of a few days are weekends or holidays.
+- **Extreme days are not errors by default.** The biggest falls and rises were all in March and April 2020 (the COVID crash, -12.98% on 2020-03-23). Real events stay in the data, because removing them would make every result look better than it was. A suspicious day is one that is isolated, reverses the next day, or disagrees with a second source.
+- **Buy rule:** for each month, buy at the Close on the first trading day on or after `sip_day`. "On or after" is needed because markets close on weekends and holidays, so the exact date may have no row. This gave 202 months, and `sip_day` is a setting, not a fixed number.
+- **Limits:** the data ends on 23 October, so the last month is partial. With a late `sip_day` that month can be skipped. Results should state the end date.
+- **Habits:** check the dtype of the index after loading a CSV (`parse_dates`), and don't leave `...` placeholders in code.
