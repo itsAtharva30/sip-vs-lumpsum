@@ -32,3 +32,28 @@ A virtual environment keeps each project's libraries separate, and requirements.
 - **Buy rule:** for each month, buy at the Close on the first trading day on or after `sip_day`. "On or after" is needed because markets close on weekends and holidays, so the exact date may have no row. This gave 202 months, and `sip_day` is a setting, not a fixed number.
 - **Limits:** the data ends on 23 October, so the last month is partial. With a late `sip_day` that month can be skipped. Results should state the end date.
 - **Habits:** check the dtype of the index after loading a CSV (`parse_dates`), and don't leave `...` placeholders in code.
+
+## Stage 3: Core functions (src/investing.py)
+
+**What I built**
+- `lump_sum(buy_price, final_price, amount)`: one purchase, valued at the final price.
+- `sip(buy_prices, final_price, monthly_amount)`: the same amount bought at each monthly price, valued at the final price.
+- `fd(amount, annual_rate, years)`: fixed deposit with yearly compounding, `amount * (1 + annual_rate) ** years`.
+- Each returns a dict (`units`, `invested`, `final_value`, `gain`; `fd` has no units). A dict is easy to read by name and can gain more fields later, such as the cash flows XIRR will need.
+
+**What I learned**
+- `invested` is the money I put in, so it is an input (`amount`, or `monthly_amount * len(buy_prices)`). Price varies, money doesn't; price only changes how many units I get. Computing it as `price * units` undoes an earlier division and adds floating-point noise.
+- A SIP is a running total: each month adds `monthly_amount / price` units. Low-price months buy more units, which is the whole mechanism.
+- Bad input should fail loudly. Each function raises a `ValueError` with a clear message instead of giving a division error or nonsense numbers.
+- Rates are decimals: 0.079 means 7.9%. Passing 7.9 means 790% and gives no error, only an absurd result, so check outputs against a rough number in my head.
+- Every function was checked against a hand calculation first: gains of 6,000 and -3,000 for lump sum, 355 and 3,500 for SIP, 12,250 for FD.
+
+**Mistakes and fixes**
+- Wrote `total_units += monthly_amount / buy_prices in lump_sum`. The loop variable is `price`, and nothing from `lump_sum` belongs inside `sip`. Fixed to `monthly_amount / price`.
+- Used the wrong variable name (`final_amount` instead of `final_value`), which would have been a `NameError`.
+- Left `...` placeholders in the code, so the function returned `Ellipsis` and, before that, `None` (no `return`).
+
+**Known limits (for the README)**
+- No fees, taxes or inflation; fractional units are allowed.
+- FD rate is a single fixed rate and compounds yearly. Real Indian FDs usually compound quarterly, and rates changed a lot between 2010 and 2026.
+- `sip` returns totals only, with no dates or individual payments, so it cannot feed XIRR yet. In Stage 4 it needs to produce a dated cash-flow list.
