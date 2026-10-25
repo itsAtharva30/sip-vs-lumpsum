@@ -44,3 +44,25 @@ def sip(buy_prices, final_price, monthly_amount):
         "final_value": final_value,
         "gain": gain,
     }
+def fd(amount, annual_rate, years):
+    """Fixed deposit: `amount` grows at `annual_rate` (decimal, 0.079 = 7.9%) for `years`.
+
+    Assumes yearly compounding, no tax, no fees; `years` may be fractional.
+    Returns a dict with invested, final_value and gain.
+    """
+    if amount <= 0:
+        raise ValueError("amount must be positive")
+    if years < 0:
+        raise ValueError("years cannot be negative")
+    if annual_rate <= -1:
+        raise ValueError("annual_rate must be greater than -1 (use 0.079 for 7.9%)")
+
+    invested = amount
+    final_value = amount * (1 + annual_rate) ** years
+    gain = final_value - invested
+
+    return {
+        "invested": invested,
+        "final_value": final_value,
+        "gain": gain,
+    }
