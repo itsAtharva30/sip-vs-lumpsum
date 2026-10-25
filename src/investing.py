@@ -18,3 +18,29 @@ def lump_sum(buy_price, final_price, amount):
         "final_value": final_value,
         "gain": gain,
     }
+    
+def sip(buy_prices, final_price, monthly_amount):
+    """Invest `monthly_amount` at each price in `buy_prices`, value at `final_price`.
+
+    Assumes no fees; fractional units are allowed.
+    Returns a dict with units, invested, final_value and gain.
+    """
+    if len(buy_prices) == 0 or monthly_amount <= 0:
+        raise ValueError("need at least one price and a positive monthly_amount")
+
+    total_units = 0
+    for price in buy_prices:
+        if price <= 0:
+            raise ValueError("all buy prices must be positive")
+        total_units += monthly_amount / price        # units bought this month
+
+    invested = monthly_amount * len(buy_prices)                # monthly_amount times how many months?
+    final_value = total_units * final_price             # total_units times what?
+    gain = final_value - invested                    # final_value minus what?
+
+    return {
+        "units": total_units,
+        "invested": invested,
+        "final_value": final_value,
+        "gain": gain,
+    }
