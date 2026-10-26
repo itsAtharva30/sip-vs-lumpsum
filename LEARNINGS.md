@@ -57,3 +57,28 @@ A virtual environment keeps each project's libraries separate, and requirements.
 - No fees, taxes or inflation; fractional units are allowed.
 - FD rate is a single fixed rate and compounds yearly. Real Indian FDs usually compound quarterly, and rates changed a lot between 2010 and 2026.
 - `sip` returns totals only, with no dates or individual payments, so it cannot feed XIRR yet. In Stage 4 it needs to produce a dated cash-flow list.
+
+## Stage 4: Metrics (src/metrics.py)
+
+**What I built**
+- `cagr(start_value, end_value, years)`: `(end / start) ** (1 / years) - 1`, as a decimal.
+- `max_drawdown(prices)`: running peak with `cummax()`, drawdown is `price / peak - 1`, result is the most negative value.
+- `xirr(cash_flows)`: yearly return for dated cash flows, found by bisection because there is no direct formula.
+- `sip` now optionally takes `buy_dates` and `final_date` and returns `cash_flows`, a list of (date, amount) pairs. Old calls still work.
+
+**What I learned**
+- CAGR assumes one lump sum at the start. A SIP puts money in over time, so CAGR on it is misleading; XIRR uses each payment's date.
+- Drawdown is measured from the highest value so far, not from the start. A price can end where it began and still show a large drawdown (100, 120, 90, 110, 70, 100 gives -41.67%).
+- A drawdown is never positive. 0.0 means the price never fell below an earlier high.
+- XIRR needs money in negative and money out positive. With one sign only there is no solution, so the function raises a ValueError.
+- XIRR solves for the rate by trying a low and a high guess and halving the gap until the net value is near zero.
+- Float results carry noise (0.0700000000000006); that is normal and not a bug.
+
+**Mistakes and fixes**
+- Skipped some paper steps and asked for the final code; I read the last lines of `max_drawdown` afterwards so I understand how they map to the paper work.
+- Wrote "drawdown <= 0 returns 0"; the function returns the worst drawdown, and 0.0 only for a series that never falls below a peak.
+
+**Known limits (for the README)**
+- XIRR uses days / 365 and bisection between -99% and 10000%.
+- Max drawdown of a SIP's value is softened because new money keeps being added; I'll note that when comparing.
+- A short SIP period gives a huge XIRR (3 months, 12% gain, about 99% a year). Annualized numbers over short spans are not meaningful.
