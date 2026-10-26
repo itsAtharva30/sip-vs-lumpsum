@@ -19,11 +19,13 @@ def lump_sum(buy_price, final_price, amount):
         "gain": gain,
     }
     
-def sip(buy_prices, final_price, monthly_amount):
+def sip(buy_prices, final_price, monthly_amount, buy_dates=None, final_date=None):
     """Invest `monthly_amount` at each price in `buy_prices`, value at `final_price`.
 
     Assumes no fees; fractional units are allowed.
     Returns a dict with units, invested, final_value and gain.
+    If `buy_dates` (one per price) and `final_date` are given, the dict also has
+    `cash_flows`: a list of (date, amount) pairs, payments negative, final value positive.
     """
     if len(buy_prices) == 0 or monthly_amount <= 0:
         raise ValueError("need at least one price and a positive monthly_amount")
@@ -32,18 +34,30 @@ def sip(buy_prices, final_price, monthly_amount):
     for price in buy_prices:
         if price <= 0:
             raise ValueError("all buy prices must be positive")
-        total_units += monthly_amount / price        # units bought this month
+        total_units += monthly_amount / price
 
-    invested = monthly_amount * len(buy_prices)                # monthly_amount times how many months?
-    final_value = total_units * final_price             # total_units times what?
-    gain = final_value - invested                    # final_value minus what?
+    invested = monthly_amount * len(buy_prices)
+    final_value = total_units * final_price
+    gain = final_value - invested
 
-    return {
+    result = {
         "units": total_units,
         "invested": invested,
         "final_value": final_value,
         "gain": gain,
     }
+
+    if buy_dates is not None:
+        if final_date is None or len(buy_dates) != len(buy_prices):
+            raise ValueError("give one buy date per price, and a final_date")
+        if final_date < buy_dates[-1]:
+            raise ValueError("final_date cannot be before the last buy date")
+        flows = [(d, -monthly_amount) for d in buy_dates]
+        flows.append((final_date, final_value))
+        result["cash_flows"] = flows
+
+    return result
+    
 def fd(amount, annual_rate, years):
     """Fixed deposit: `amount` grows at `annual_rate` (decimal, 0.079 = 7.9%) for `years`.
 
