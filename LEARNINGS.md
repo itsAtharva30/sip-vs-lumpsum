@@ -82,3 +82,22 @@ A virtual environment keeps each project's libraries separate, and requirements.
 - XIRR uses days / 365 and bisection between -99% and 10000%.
 - Max drawdown of a SIP's value is softened because new money keeps being added; I'll note that when comparing.
 - A short SIP period gives a huge XIRR (3 months, 12% gain, about 99% a year). Annualized numbers over short spans are not meaningful.
+
+## Stage 5: comparison and charts
+
+**Mistakes and surprises**
+- A notebook runs from `notebooks/`, so the path `data/processed/...` failed with FileNotFoundError. The fix was `../data/processed/...`. Relative paths depend on where the code runs from, not where the file lives.
+- A cell failed with `NameError: fd is not defined`. I had imported `lump_sum` and `sip` but not `fd`. Python only knows names that have been imported.
+- Restarting the notebook kernel wiped every variable, so cells had to reload their data and imports. Results I need later should be written down or saved, not left only in memory.
+- Gold had one row (2026-01-15) whose close was identical to the previous day's. It is possibly stale, but it is not a SIP buy date, so it does not affect results.
+
+**What changed my mind**
+- Lump sum ended with far more rupees than SIP, but that was mostly because its money was invested for the whole 16.8 years. Compared by yearly return, the SIP was slightly ahead (Nifty 9.6% vs 9.1%, gold 13.9% vs 12.3%). Final value alone is not a fair comparison.
+- Gold looked clearly better than Nifty, but the chart showed its lead comes mostly from the last two years. Nifty was ahead for much of 2016 to 2024. The ranking depends on the window.
+- Max drawdown and depth are different risks. Nifty's worst fall was deeper (-38%, March 2020), but gold's falls were longer (below its peak for most of 2013 to 2019).
+
+**Checks that confirmed things**
+- A toy example by hand (prices 100, 80, 120, final 130) matched the code exactly before I trusted it on real data.
+- Lump sum CAGR and XIRR gave the same 9.0933%, so the two metrics agree with each other. FD gave exactly 7.9% in both forms, as it should for a fixed rate.
+- Only 7 of 202 monthly buy dates differed between the Nifty and gold files (all Januaries, 1 to 3 days apart), so the missing Nifty days are a README known limit, not a fix.
+- Lowering the final gold price by 10% and 20% still left gold ahead of Nifty and FD, so the gold result does not depend on the unverified 2026 prices being exact.
