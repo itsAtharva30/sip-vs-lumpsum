@@ -101,3 +101,24 @@ A virtual environment keeps each project's libraries separate, and requirements.
 - Lump sum CAGR and XIRR gave the same 9.0933%, so the two metrics agree with each other. FD gave exactly 7.9% in both forms, as it should for a fixed rate.
 - Only 7 of 202 monthly buy dates differed between the Nifty and gold files (all Januaries, 1 to 3 days apart), so the missing Nifty days are a README known limit, not a fix.
 - Lowering the final gold price by 10% and 20% still left gold ahead of Nifty and FD, so the gold result does not depend on the unverified 2026 prices being exact.
+
+@'
+
+## Stage 6: tests and refactor
+
+**Mistakes and surprises**
+- I guessed `fd` returned a single number. It returns a dictionary with invested, final_value and gain, so my first test failed. The code was right and the test was wrong; reading the code or running it first would have shown this.
+- I worked out the leap-year XIRR by hand and got about 9.99%. The real value is 0.0997136 (about 9.97%). That was my arithmetic slip, not a bug. XIRR counts actual days divided by 365, so a 366-day gap is slightly more than one year.
+- Re-running the notebook gave Nifty 9.13% instead of 9.09%. The `yf.download` calls had no end date, so Run All downloaded new data and overwrote the CSVs and charts. The function swap was not the cause.
+- Pasting partial edits into a test file kept leaving it out of date. Replacing the whole file in one go was safer.
+
+**What changed my mind**
+- Tests are not only for finding bugs. 27 tests found none, but writing them made me read every function's return shape, error guard and assumption, which is why they are worth having.
+- A notebook that downloads data is not reproducible unless the end date is fixed. Pinning `end="2026-10-24"` made a fresh Run All match my notes exactly (9.09, 9.62, 12.27, 13.85, 7.9).
+
+**Checks that confirmed things**
+- 27 tests pass across `fd`, `lump_sum`, `sip`, `cagr`, `max_drawdown`, `xirr` and `monthly_buy_prices`, including every `ValueError` guard and a pandas Series input.
+- The XIRR multi-flow test checks that the returned rate makes the discounted cash flows sum to zero, so it does not depend on a number I computed.
+- The notebook now imports `monthly_buy_prices` from `src/data.py` instead of keeping its own copy, and its output matched the old copy.
+- `git restore data charts` put back the 23 Oct data after the accidental re-download, so the repo still matches the README notes.
+'@ | Add-Content LEARNINGS.md
