@@ -121,4 +121,5 @@ A virtual environment keeps each project's libraries separate, and requirements.
 - The XIRR multi-flow test checks that the returned rate makes the discounted cash flows sum to zero, so it does not depend on a number I computed.
 - The notebook now imports `monthly_buy_prices` from `src/data.py` instead of keeping its own copy, and its output matched the old copy.
 - `git restore data charts` put back the 23 Oct data after the accidental re-download, so the repo still matches the README notes.
-'@ | Add-Content LEARNINGS.md- `run_asset` was defined twice in the notebook, once returning everything and once returning two values. Moving it to `src/compare.py` left one copy, and a test on the real data now checks the README numbers (9.09, 9.62, 12.27, 13.85), so a code change that moves them will fail.
+- `run_asset` was defined twice in the notebook, once returning everything and once returning two values. Moving it to `src/compare.py` left one copy, and a test on the real data now checks the README numbers (9.09, 9.62, 12.27, 13.85), so a code change that moves them will fail.
+
