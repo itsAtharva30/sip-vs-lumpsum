@@ -102,8 +102,6 @@ A virtual environment keeps each project's libraries separate, and requirements.
 - Only 7 of 202 monthly buy dates differed between the Nifty and gold files (all Januaries, 1 to 3 days apart), so the missing Nifty days are a README known limit, not a fix.
 - Lowering the final gold price by 10% and 20% still left gold ahead of Nifty and FD, so the gold result does not depend on the unverified 2026 prices being exact.
 
-@'
-
 ## Stage 6: tests and refactor
 
 **Mistakes and surprises**
@@ -123,3 +121,13 @@ A virtual environment keeps each project's libraries separate, and requirements.
 - `git restore data charts` put back the 23 Oct data after the accidental re-download, so the repo still matches the README notes.
 - `run_asset` was defined twice in the notebook, once returning everything and once returning two values. Moving it to `src/compare.py` left one copy, and a test on the real data now checks the README numbers (9.09, 9.62, 12.27, 13.85), so a code change that moves them will fail.
 
+## Stage 7: README and write-up
+
+- A README has to serve two readers: someone who wants the findings and someone who wants to run the project. Every number in it came from the committed data and the notes, not from new calculations.
+- After pasting the README, `git status` still said clean, so the file was not what I thought. Reading the diff showed 311 insertions and 0 deletions, which means the committed README had been empty. Always read the diff before committing.
+- The yfinance `end` date is exclusive: `end="2026-10-24"` gives data up to 23 October.
+- Reading the notebook for the "different end date" guide showed hidden assumptions: the FD cell has `total = 5000 * 202` hardcoded, the gold fix multiplies two days by 100 without checking, and the download cells overwrite the committed CSVs. I documented these instead of changing locked code.
+- `tests/test_compare.py` pins the committed numbers with a tolerance of 0.00006, so a shifted window is expected to fail it. That is the test doing its job.
+- The result holds for this window only: gold, then Nifty, then FD, with the SIP ahead by about 0.5 points (Nifty) and 1.6 points (gold). It is not a forecast.
+- The VS Code preview did not show the charts even though all three PNG files were valid (checked their first bytes), but they showed fine on the GitHub page. The GitHub page is what readers see, so check there.
+- My first stray-text fix searched only for `Add-Content`, so a second leftover from the same PowerShell here-string (a lone `@'` line before Stage 6) stayed in the file. When cleaning up pasted command text, search for every part of it (`@'`, `'@`, the command name), not just one.
